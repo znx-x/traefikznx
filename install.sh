@@ -140,10 +140,16 @@ else
     log_event "No CA server URL provided; skipping update." "traefikznx_installation.log"
 fi
 
-# Modify traefik.yml to replace the placeholder email and domain
-sed -i "s/example@email.com/$email/g" data/traefik.yml
-sed -i "s/example.com/$wildcard_domain/g" docker-compose.yml
-log_event "Modified docker-compose.yml with domain: $wildcard_domain" "traefikznx_installation.log"
+# Update email in traefik.yml
+yq e -i ".certificatesResolvers.cloudflare.acme.email = \"$email\"" data/traefik.yml
+log_event "Modified traefik.yml with email: $email" "traefikznx_installation.log"
+
+# Update domains and rules in docker-compose.yml using yq for each label
+yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik.rule=Host(\`traefik-dashboard.example.com\`)\") ) |= sub(\"example.com\", \"$wildcard_domain\")" docker-compose.yml
+yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik-secure.rule=Host(\`traefik-dashboard.example.com\`)\") ) |= sub(\"example.com\", \"$wildcard_domain\")" docker-compose.yml
+yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik-secure.tls.domains[0].main=example.com\") ) |= sub(\"example.com\", \"$wildcard_domain\")" docker-compose.yml
+yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik-secure.tls.domains[0].sans=*.example.com\") ) |= sub(\"*.example.com\", \"*.$wildcard_domain\")" docker-compose.yml
+log_event "Modified docker-compose.yml with wildcard domain: $wildcard_domain" "traefikznx_installation.log"
 
 echo "Installation completed. Configuration written to .env and Cloudflare API token updated."
 echo "You can start Traefik by running ./traefikznx.sh start"
