@@ -68,9 +68,12 @@ If the installation went well, you should be able to call the `./traefikznx.sh` 
 ./traefikznx.sh start
 ```
 
+You can also use `./traefikznx.sh start-d` to start a detached container.
+
 You have the following available commands:
 
 - `start` - Builds and starts the Traefik container.
+- `start-d` - Builds and starts a detached Traefik container.
 - `stop` - Stops the Traefik container.
 - `restart` - Restarts the Traefik container. Can be used to refresh or reload if new configs aren't being applied automatically.
 - `add_service [service_name] [domain] [backend_url]` - Adds a new service to the stack. Further information below.
@@ -88,7 +91,7 @@ You can add and remove Name Services by using the `add_service` and `rm_service`
 
 #### Add Service
 
-To add a new service you will need to specify the `service_name`, the `domain` you want to use as your entry point, and the `backend_url` that given domain will point to. You will need to use the protocol, eg. `https://`, with both the `domain` and the `backend_url`.
+To add a new service you will need to specify the `service_name`, the `domain` you want to use as your entry point, and the `backend_url` that given domain will point to. You will need to use just the domain string to describe the `domain`, but you will **NEED** to use the protocol, eg. `https://192.168.0.100:8080`, with the `backend_url`.
 
 ```shell
 ./traefikznx.sh add_service [service_name] [domain] [backend_url]
@@ -96,7 +99,7 @@ To add a new service you will need to specify the `service_name`, the `domain` y
 
 Example:
 ```shell
-./traefikznx.sh add_service example https://example.com https://192.168.0.100:8080
+./traefikznx.sh add_service example local.example.com https://192.168.0.100:8080
 ```
 
 ### Remove Service

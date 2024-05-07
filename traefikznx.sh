@@ -19,6 +19,13 @@ function start {
     log_event "Traefik container started." "traefikznx.log"
 }
 
+# Starts Traefik on a detached container
+function start-d {
+    log_event "Function start-d called." "traefikznx.log"
+    docker-compose up -d --force-recreate
+    log_event "Traefik detached container started." "traefikznx.log"
+}
+
 # Stops Traefik container
 function stop {
     log_event "Function stop called." "traefikznx.log"
@@ -42,7 +49,10 @@ function add_service {
     local domain=$2
     local backend_url=$3
     backup
-    yq e ".http.services.${service_name}.loadBalancer.servers[+].url = \"$backend_url\"" -i ./data/config.yml
+    # Add or update service load balancer configuration
+    yq e ".http.services.${service_name}.loadBalancer.servers[0].url = \"$backend_url\"" -i ./data/config.yml
+    yq e ".http.services.${service_name}.loadBalancer.passHostHeader = true" -i ./data/config.yml
+    # Add or update router configuration
     yq e ".http.routers.${service_name}.entryPoints[0] = \"https\"" -i ./data/config.yml
     yq e ".http.routers.${service_name}.rule = \"Host(\`${domain}\`)\"" -i ./data/config.yml
     yq e ".http.routers.${service_name}.middlewares[0] = \"https-redirectscheme\"" -i ./data/config.yml
@@ -207,6 +217,9 @@ case "$1" in
     start)
         start
         ;;
+    start)
+        start-d
+        ;;
     stop)
         stop
         ;;
@@ -241,6 +254,6 @@ case "$1" in
         rm_certificate
         ;;
     *)
-        echo "Usage: $0 {start|stop|restart|add_service|rm_service|set_server|set_ca_server|set_custom_server|backup|backup_restore|backup_clean|rm_certificate}"
+        echo "Usage: $0 {start|start-d|stop|restart|add_service|rm_service|set_server|set_ca_server|set_custom_server|backup|backup_restore|backup_clean|rm_certificate}"
         exit 1
 esac
