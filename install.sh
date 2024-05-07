@@ -33,18 +33,17 @@ ask_required() {
 
 username=$(ask_required "Username*: ")
 log_event "Installation Username: $username" "traefikznx_installation.log"
+email=$(ask_required "E-Mail*: ")
+log_event "Installation E-Mail: $email" "traefikznx_installation.log"
 password=$(ask_required "Password*: " -s)  # Use -s to hide password input
-echo ""
 log_event "Installation Password: -hidden-" "traefikznx_installation.log"
 cloudflare_api=$(ask_required "Your Cloudflare API Token*: ")
-echo ""
 log_event "Cloudflare API Token: $cloudflare_api" "traefikznx_installation.log"
 wildcard_domain=$(ask_required "Wildcard Domain*: ")
 log_event "Wildcard Domain: $wildcard_domain" "traefikznx_installation.log"
 # Optional CA server input
-echo "CA Server URL:"
-echo "Defaults to: https://acme-staging-v02.api.letsencrypt.org/directory"
-read -p "" ca_server
+read -p "CA Server URL (Leave Blank If Unsure): " ca_server
+log_event "CA Server URL: $ca_server" "traefikznx_installation.log"
 echo "---------------------------------------------------------------------"
 
 # General system updates
@@ -141,7 +140,8 @@ else
     log_event "No CA server URL provided; skipping update." "traefikznx_installation.log"
 fi
 
-# Modify docker-compose.yml to replace the example.com domain
+# Modify traefik.yml to replace the placeholder email and domain
+sed -i "s/example@email.com/$email/g" data/traefik.yml
 sed -i "s/example.com/$wildcard_domain/g" docker-compose.yml
 log_event "Modified docker-compose.yml with domain: $wildcard_domain" "traefikznx_installation.log"
 
