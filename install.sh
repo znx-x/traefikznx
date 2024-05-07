@@ -85,7 +85,12 @@ fi
 
 # Installs yq for managing services and routers inside /data/config.yml
 log_event "Start: Install yq." "traefikznx_installation.log"
-sudo wget https://github.com/mikefarah/yq/releases/download/v4.43.1/yq_linux_amd64 -O /usr/bin/yq \ && chmod +x /usr/bin/yq
+log_event "Start: Download yq." "traefikznx_installation.log"
+sudo wget https://github.com/mikefarah/yq/releases/download/v4.43.1/yq_linux_amd64
+log_event "Start: Move yq to /usr/bin/yq." "traefikznx_installation.log"
+sudo mv yq /usr/bin/yq
+log_event "Start: Chmod yq." "traefikznx_installation.log"
+sudo chmod +x /usr/bin/yq
 log_event "Finish: Install yq." "traefikznx_installation.log"
 
 # Setup permissions for acme.json and traefikznx.sh
@@ -110,7 +115,7 @@ fi
 
 # Generates user-password pair and escapes it for use in .env file
 log_event "Start: Generate user-password pair for use in .env file." "traefikznx_installation.log"
-password_hash=$(echo $password | hpasswd -niB $username | sed -e s/\\$/\\$\\$/g)
+password_hash=$(echo $(htpasswd -nb "$username" "$password") | sed -e s/\\$/\\$\\$/g)
 log_event "Finish: Generate user-password pair for use in .env file." "traefikznx_installation.log"
 
 # Creates .env file and adds the user-password pair variable
