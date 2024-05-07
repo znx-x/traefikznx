@@ -210,17 +210,23 @@ case "$1" in
     stop)
         stop
         ;;
+    restart)
+        restart
+        ;;
     add_service)
         add_service "$2" "$3" "$4"
         ;;
     rm_service)
         rm_service "$2"
         ;;
-    set_environment)
-        set_environment "$2"
+    set_server)
+        set_server "$2"
         ;;
     set_ca_server)
-        set_ca_server "${!2}"
+        set_ca_server "$2"
+        ;;
+    set_custom_server)
+        set_custom_server "$2"
         ;;
     backup)
         backup
@@ -231,7 +237,10 @@ case "$1" in
     backup_clean)
         backup_clean
         ;;
+    rm_certificate)
+        rm_certificate
+        ;;
     *)
-        echo "Usage: $0 {start|stop|add_service|rm_service|set_environment|set_ca_server|backup|backup_restore|backup_clean}"
+        echo "Usage: $0 {start|stop|restart|add_service|rm_service|set_server|set_ca_server|set_custom_server|backup|backup_restore|backup_clean|rm_certificate}"
         exit 1
 esac
