@@ -142,7 +142,7 @@ log_event "Modified traefik.yml with email: $email" "traefikznx_installation.log
 yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik.rule=Host(\`traefik-dashboard.example.com\`)\") ) |= sub(\"example.com\", \"$wildcard_domain\")" docker-compose.yml
 yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik-secure.rule=Host(\`traefik-dashboard.example.com\`)\") ) |= sub(\"example.com\", \"$wildcard_domain\")" docker-compose.yml
 yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik-secure.tls.domains[0].main=example.com\") ) |= sub(\"example.com\", \"$wildcard_domain\")" docker-compose.yml
-yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik-secure.tls.domains[0].sans=*.example.com\") ) |= sub(\"\\\\*.example.com\", \"*.$wildcard_domain\")" docker-compose.yml
+yq e -i ".services.traefik.labels[] |= (select(. == \"traefik.http.routers.traefik-secure.tls.domains[0].sans=*.example.com\") = \"traefik.http.routers.traefik-secure.tls.domains[0].sans=*.$wildcard_domain\")" docker-compose.yml
 log_event "Modified docker-compose.yml with wildcard domain: $wildcard_domain" "traefikznx_installation.log"
 
 # Generates user-password pair
