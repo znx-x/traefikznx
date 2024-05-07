@@ -83,23 +83,10 @@ else
     exit 1
 fi
 
-# Installs snapd to install yq
-log_event "Start: Install snapd." "traefikznx_installation.log"
-if sudo apt install -y snapd; then
-    log_event "Finish: Install snapd." "traefikznx_installation.log"
-else
-    log_event "Error: Installation of snapd failed." "traefikznx_installation.log"
-    exit 1
-fi
-
 # Installs yq for managing services and routers inside /data/config.yml
 log_event "Start: Install yq." "traefikznx_installation.log"
-if sudo snap install -y yq; then
-    log_event "Finish: Install yq." "traefikznx_installation.log"
-else
-    log_event "Error: Installation of yq failed." "traefikznx_installation.log"
-    exit 1
-fi
+sudo wget https://github.com/mikefarah/yq/releases/download/v4.43.1/yq_linux_amd64 -O /usr/bin/yq \ && chmod +x /usr/bin/yq
+log_event "Finish: Install yq." "traefikznx_installation.log"
 
 # Setup permissions for acme.json and traefikznx.sh
 log_event "Start: Set file permissions for acme.json and traefikznx.sh." "traefikznx_installation.log"
