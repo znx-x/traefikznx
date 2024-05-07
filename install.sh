@@ -88,7 +88,7 @@ log_event "Start: Install yq." "traefikznx_installation.log"
 log_event "Start: Download yq." "traefikznx_installation.log"
 sudo wget https://github.com/mikefarah/yq/releases/download/v4.43.1/yq_linux_amd64
 log_event "Start: Move yq to /usr/bin/yq." "traefikznx_installation.log"
-sudo mv yq /usr/bin/yq
+sudo mv yq_linux_amd64 /usr/bin/yq
 log_event "Start: Chmod yq." "traefikznx_installation.log"
 sudo chmod +x /usr/bin/yq
 log_event "Finish: Install yq." "traefikznx_installation.log"
