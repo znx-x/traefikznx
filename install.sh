@@ -34,17 +34,17 @@ ask_required() {
 username=$(ask_required "Username*: ")
 log_event "Installation Username: $username" "traefikznx_installation.log"
 password=$(ask_required "Password*: " -s)  # Use -s to hide password input
+echo ""
 log_event "Installation Password: -hidden-" "traefikznx_installation.log"
-echo ""
 cloudflare_api=$(ask_required "Your Cloudflare API Token*: ")
-log_event "Cloudflare API Token: $cloudflare_api" "traefikznx_installation.log"
 echo ""
-
+log_event "Cloudflare API Token: $cloudflare_api" "traefikznx_installation.log"
+wildcard_domain=$(ask_required "Wildcard Domain*: ")
+log_event "Wildcard Domain: $wildcard_domain" "traefikznx_installation.log"
 # Optional CA server input
 echo "CA Server URL:"
 echo "Defaults to: https://acme-staging-v02.api.letsencrypt.org/directory"
 read -p "" ca_server
-log_event "Installation CA Server: $ca_server" "traefikznx_installation.log"
 echo "---------------------------------------------------------------------"
 
 # General system updates
@@ -123,9 +123,9 @@ log_event "Start: Creates .env file with user-password pair." "traefikznx_instal
 echo "TRAEFIK_DASHBOARD_CREDENTIALS=$password_hash" > .env
 log_event "Finish: Creates .env file with user-password pair." "traefikznx_installation.log"
 
-# Write the Cloudflare token to cf_api_token
+# Write the Cloudflare token to cf_api_token.txt
 log_event "Start: Write Cloudflare token file." "traefikznx_installation.log"
-echo "$cloudflare_api" > ./cf_api_token
+echo "$cloudflare_api" > ./cf_api_token.txt
 log_event "Finish: Write Cloudflare token file." "traefikznx_installation.log"
 
 # Check if a custom CA server was provided and update it
@@ -141,5 +141,10 @@ else
     log_event "No CA server URL provided; skipping update." "traefikznx_installation.log"
 fi
 
-echo "Installation completed. Configuration written to .env and Cloudflare API token updated.\nYou can start Traefik by running ./traefikznx start"
+# Modify docker-compose.yml to replace the example.com domain
+sed -i "s/example.com/$wildcard_domain/g" docker-compose.yml
+log_event "Modified docker-compose.yml with domain: $wildcard_domain" "traefikznx_installation.log"
+
+echo "Installation completed. Configuration written to .env and Cloudflare API token updated."
+echo "You can start Traefik by running ./traefikznx.sh start"
 log_event "Finish: Installation script." "traefikznx_installation.log"

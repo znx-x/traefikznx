@@ -14,11 +14,11 @@ services:
       - 443:443/tcp
       # - 443:443/udp # Uncomment if you want HTTP3
     environment:
-      CF_DNS_API_TOKEN_FILE: /run/secrets/cf_api_token # note using _FILE for docker secrets
+      CF_DNS_API_TOKEN_FILE: /run/secrets/cf_api_token.txt # note using _FILE for docker secrets
       CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN} # if using .env
       TRAEFIK_DASHBOARD_CREDENTIALS: ${TRAEFIK_DASHBOARD_CREDENTIALS}
     secrets:
-      - cf_api_token
+      - cf_api_token.txt
     env_file: .env # use .env
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -44,8 +44,8 @@ services:
       - "traefik.http.routers.traefik-secure.service=api@internal"
 
 secrets:
-  cf_api_token:
-    file: ./cf_api_token
+  cf_api_token.txt:
+    file: ./cf_api_token.txt
 
 networks:
   proxy:

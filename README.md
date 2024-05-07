@@ -16,13 +16,19 @@ sudo bash install.sh
 ```
 *Requires SUDO to work.*
 
-The script will ask for your **Username**, **Password**, **Cloudflare API Token**, and a **CA Server URL**. You can leave the **CA Server URL** if you don't know what it is or if you just want to use the default *Let's Encrypt* servers defined on `.env.urls`.
+The script will ask for your **Username**, **Password**, **Cloudflare API Token**, **Wildcard Domain**, and a **CA Server URL**. You can leave the **CA Server URL** if you don't know what it is or if you just want to use the default *Let's Encrypt* servers defined on `.env.urls`.
+
+- **Username** - Your Traefik username
+- **Password** - Your Traefik password
+- **Cloudflare API Token** - API token to validate your domain with Cloudflare
+- **Wildcard Domain** - The main domain you want the wildcard certificate issued to
+- **CA Server URL** - The URL of the Certificate Authority server *leave blank if you don't know!*
 
 ## Usage
 
-If the installation went well, you should be able to call the `./traefikznx` script as an executable script. All calls have arguments, so you will need to specify what script you want to execute when running `./traefikznx`, for example:
+If the installation went well, you should be able to call the `./traefikznx.sh` script as an executable script. All calls have arguments, so you will need to specify what script you want to execute when running `./traefikznx.sh`, for example:
 ```shell
-./traefikznx start
+./traefikznx.sh start
 ```
 
 You have the following available commands:
@@ -48,12 +54,12 @@ You can add and remove Name Services by using the `add_service` and `rm_service`
 To add a new service you will need to specify the `service_name`, the `domain` you want to use as your entry point, and the `backend_url` that given domain will point to. You will need to use the protocol, eg. `https://`, with both the `domain` and the `backend_url`.
 
 ```shell
-./traefikznx add_service [service_name] [domain] [backend_url]
+./traefikznx.sh add_service [service_name] [domain] [backend_url]
 ```
 
 Example:
 ```shell
-./traefikznx add_service example https://example.com https://192.168.0.100:8080
+./traefikznx.sh add_service example https://example.com https://192.168.0.100:8080
 ```
 
 ### Remove Service
@@ -61,7 +67,7 @@ Example:
 You can remove services by specifying the `service_name` with your call.
 
 ```shell
-./traefikznx rm_service example
+./traefikznx.sh rm_service example
 ```
 
 This should remove the entry from your Traefik configuration file.

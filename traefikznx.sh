@@ -15,21 +15,21 @@ fi
 # Starts Traefik container
 function start {
     log_event "Function start called." "traefikznx.log"
-    docker compose up --force-recreate
+    docker-compose up --force-recreate
     log_event "Traefik container started." "traefikznx.log"
 }
 
 # Stops Traefik container
 function stop {
     log_event "Function stop called." "traefikznx.log"
-    docker compose down
+    docker-compose down
     log_event "Traefik container stopped." "traefikznx.log"
 }
 
 # Restarts Traefik container (Update/Refresh)
 function restart {
     log_event "Function restart called." "traefikznx.log"
-    docker compose restart traefik
+    docker-compose restart traefik
     log_event "Traefik container restarted." "traefikznx.log"
 }
 
@@ -145,7 +145,7 @@ function backup {
     cp ./data/config.yml ./data/config.yml.backup
     cp ./data/traefik.yml ./data/traefik.yml.backup
     cp ./data/acme.json ./data/acme.json.backup
-    cp ./cf_api_token ./cf_api_token.backup
+    cp ./cf_api_token.txt ./cf_api_token.txt.backup
     echo "All configurations backed up."
     log_event "All configurations backed up." "traefikznx.log"
 }
@@ -154,12 +154,12 @@ function backup {
 function backup_restore {
     log_event "Function backup_restore called." "traefikznx.log"
     echo "Checking for backup files..."
-    if [[ -f ./data/config.yml.backup && -f ./data/traefik.yml.backup && -f ./data/acme.json.backup && -f ./cf_api_token.backup ]]; then
+    if [[ -f ./data/config.yml.backup && -f ./data/traefik.yml.backup && -f ./data/acme.json.backup && -f ./cf_api_token.txt.backup ]]; then
         echo "Restoring configurations from backup..."
         cp ./data/config.yml.backup ./data/config.yml
         cp ./data/traefik.yml.backup ./data/traefik.yml
         cp ./data/acme.json.backup ./data/acme.json
-        cp ./cf_api_token.backup ./cf_api_token
+        cp ./cf_api_token.txt.backup ./cf_api_token.txt
         echo "Configurations restored."
         log_event "Backup: Configurations restored." "traefikznx.log"
         restart
@@ -176,12 +176,12 @@ function backup_clean {
     read -p "Are you sure you want to proceed? (yes/no): " confirmation
     if [[ "$confirmation" =~ ^[Yy]es$ ]]; then
         # Check for the existence of backup files before deleting
-        if [[ -f ./data/config.yml.backup || -f ./data/traefik.yml.backup || -f ./data/acme.json.backup || -f ./cf_api_token.backup ]]; then
+        if [[ -f ./data/config.yml.backup || -f ./data/traefik.yml.backup || -f ./data/acme.json.backup || -f ./cf_api_token.txt.backup ]]; then
             echo "Deleting backup files..."
             rm -f ./data/config.yml.backup
             rm -f ./data/traefik.yml.backup
             rm -f ./data/acme.json.backup
-            rm -f ./cf_api_token.backup
+            rm -f ./cf_api_token.txt.backup
             echo "Backup files deleted."
             log_event "Backup: Files deleted." "traefikznx.log"
         else
