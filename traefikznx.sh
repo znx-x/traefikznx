@@ -113,7 +113,7 @@ function set_server {
     yq e ".certificatesResolvers.cloudflare.acme.caServer = \"$ca_server_url\"" -i ./data/traefik.yml
     echo "Environment set to $env with CA server: $ca_server_url"
     log_event "Environment set to $env with CA server: $ca_server_url" "traefikznx.log"
-    reset_acme_json
+    rm_certificate
     restart
     log_event "Traefik container restarted." "traefikznx.log"
 }
@@ -132,7 +132,7 @@ function set_custom_server {
     yq e ".certificatesResolvers.cloudflare.acme.caServer = \"$ca_server_url\"" -i ./data/traefik.yml
     echo "CA server updated to $ca_server_url."
     log_event "CA server updated to $ca_server_url." "traefikznx.log"
-    reset_acme_json
+    rm_certificate
     restart
     log_event "Traefik container restarted." "traefikznx.log"
 }
