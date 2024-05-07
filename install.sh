@@ -11,6 +11,7 @@ log_event "Start: Installation script." "traefikznx_installation.log"
 
 # Welcome message
 echo -e "Welcome to Traefik Cert Scripts\nThis will install and run Traefik on your computer and set up an auto-renewing SSL certificate using Let's Encrypt and Cloudflare for your local network applications.\n"
+echo -e "You will be prompted to type your password during the installation process.\n"
 
 # Necessary user inputs
 echo "Configuration Parameters"
@@ -33,10 +34,8 @@ ask_required() {
 
 username=$(ask_required "Username*: ")
 log_event "Installation Username: $username" "traefikznx_installation.log"
-email=$(ask_required "E-Mail*: ")
+email=$(ask_required "E-Mail (Cloudflare)*: ")
 log_event "Installation E-Mail: $email" "traefikznx_installation.log"
-password=$(ask_required "Password*: " -s)  # Use -s to hide password input
-log_event "Installation Password: -hidden-" "traefikznx_installation.log"
 cloudflare_api=$(ask_required "Your Cloudflare API Token*: ")
 log_event "Cloudflare API Token: $cloudflare_api" "traefikznx_installation.log"
 wildcard_domain=$(ask_required "Wildcard Domain*: ")
@@ -112,11 +111,6 @@ else
     exit 1
 fi
 
-# Generates user-password pair and escapes it for use in .env file
-log_event "Start: Generate user-password pair for use in .env file." "traefikznx_installation.log"
-password_hash=$(echo $(htpasswd -nb "$username" "$password") | sed -e s/\\$/\\$\\$/g)
-log_event "Finish: Generate user-password pair for use in .env file." "traefikznx_installation.log"
-
 # Creates .env file and adds the user-password pair variable
 log_event "Start: Creates .env file with user-password pair." "traefikznx_installation.log"
 echo "TRAEFIK_DASHBOARD_CREDENTIALS=$password_hash" > .env
@@ -148,9 +142,23 @@ log_event "Modified traefik.yml with email: $email" "traefikznx_installation.log
 yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik.rule=Host(\`traefik-dashboard.example.com\`)\") ) |= sub(\"example.com\", \"$wildcard_domain\")" docker-compose.yml
 yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik-secure.rule=Host(\`traefik-dashboard.example.com\`)\") ) |= sub(\"example.com\", \"$wildcard_domain\")" docker-compose.yml
 yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik-secure.tls.domains[0].main=example.com\") ) |= sub(\"example.com\", \"$wildcard_domain\")" docker-compose.yml
-yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik-secure.tls.domains[0].sans=*.example.com\") ) |= sub(\"*.example.com\", \"*.$wildcard_domain\")" docker-compose.yml
+yq e -i "(.services.traefik.labels[] | select(. == \"traefik.http.routers.traefik-secure.tls.domains[0].sans=*.example.com\") ) |= sub(\"\\\\*.example.com\", \"*.$wildcard_domain\")" docker-compose.yml
 log_event "Modified docker-compose.yml with wildcard domain: $wildcard_domain" "traefikznx_installation.log"
 
-echo "Installation completed. Configuration written to .env and Cloudflare API token updated."
-echo "You can start Traefik by running ./traefikznx.sh start"
+# Generates user-password pair
+echo ""
+echo "Traefik Dashboard Password Generator"
+echo "---------------------------------------------------------------------"
+echo "Please type a password to use with your username on the Traefik"
+echo "Dashboard. For security reasons, this step is not automated by this"
+echo "script, and you will need to manually copy the output into your .env"
+echo "file, placing it after TRAEFIK_DASHBOARD_CREDENTIALS=". You can use
+echo "the 'nano .env' command or any other available text editor for that."
+echo "---------------------------------------------------------------------"
+echo $(htpasswd -nB $username) | sed -e s/\\$/\\$\\$/g
+echo "---------------------------------------------------------------------"
+echo ""
+log_event "Encrypted password generated." "traefikznx_installation.log"
+
+echo -e "Installation completed. Please don't forget to add the hashed password to your .env file before starting the service.\nYou can start Traefik by running ./traefikznx.sh start"
 log_event "Finish: Installation script." "traefikznx_installation.log"

@@ -6,7 +6,14 @@ Welcome to the **TraefikZNX** open source repository. This repository helps you 
 - Ubuntu 22.04+
 - cUrl Installed
 - Docker.io Installed
-- Cloudflare API Token (Linked to a Domain)
+- Internal DNS Server (*tested with Pi-Hole*)
+- Cloudflare API Token (*Linked to a domain*)
+
+*This tool was developed and tested on a Proxmox VM running a Ubuntu 22.04 container. Will not work on Windows, and it hasn't been tested on macOS or any other Linux flavours.*
+
+### Cloudflare API Token
+
+Please make sure your API token is set up so it can **READ** your domain Zone and **EDIT** your domain DNS records. These are required for domain validation by Let's Encrypt and if not set up properly will mean that your certificates won't be issued.
 
 ## Installation
 
@@ -16,13 +23,43 @@ sudo bash install.sh
 ```
 *Requires SUDO to work.*
 
-The script will ask for your **Username**, **Password**, **Cloudflare API Token**, **Wildcard Domain**, and a **CA Server URL**. You can leave the **CA Server URL** if you don't know what it is or if you just want to use the default *Let's Encrypt* servers defined on `.env.urls`.
+The script will ask for your **Username**, **Password** (at the end), **Cloudflare API Token**, **Wildcard Domain**, and a **CA Server URL**. You can leave the **CA Server URL** if you don't know what it is or if you just want to use the default *Let's Encrypt* servers defined on `.env.urls`.
 
 - **Username** - Your Traefik username
 - **Password** - Your Traefik password
 - **Cloudflare API Token** - API token to validate your domain with Cloudflare
 - **Wildcard Domain** - The main domain you want the wildcard certificate issued to
 - **CA Server URL** - The URL of the Certificate Authority server *leave blank if you don't know!*
+
+After the installation is complete, the script will display your hashed password on the screen, and you will need to manually copy it into your `.env` file. You can edit your `.env` file by using `nano` or any other text editor:
+```shell
+nano .env
+```
+
+Place the hashed password in front of the `TRAEFIK_DASHBOARD_CREDENTIALS` variable. Your `.env` file should look something like this:
+```shell
+TRAEFIK_DASHBOARD_CREDENTIALS=user:$$2y$$05$$lSaEi.G.aIygyXRdiFpt7OqmUMW9QUG5I1N.j0bXoXxIjxQmoGOWu
+```
+
+### Setting Up Internal DNS Server
+
+Once installed and running you will need to set up your internal DNS server to point to Traefik so you can make use of the SSL certificates. This process will change depending on the DNS server you are using, but if you are using **Pi-Hole** the process should look something like this:
+
+**Step 1:** Go to your dashboard and look for the option **Local DNS** on your main menu, and under that, click on **DNS Records**.
+
+**Step 2:** Create a new DNS [A/AAA] record with your wildcard domain used during the installation and the IP of the machine that your Traefik server is being hosted. Eg.:
+```
+Domain: local.example.com
+IP Address: 192.168.0.100
+```
+
+**Step 3:** Now navigate to `Local DNS > CNAME Records` and create a new CNAME record using `traefik-dashboard` as a subdomain for your wildcard domain, and set the target domain as your A/AAA record above. Eg.:
+```
+Domain: traefik-dashboard.local.example.com
+Target Domain: local.example.com
+```
+
+**Step 4:** By now you should be able to access your Traefik Dashboard via the https://traefik-dashboard.[YOUR-DOMAIN]/.
 
 ## Usage
 
@@ -71,6 +108,12 @@ You can remove services by specifying the `service_name` with your call.
 ```
 
 This should remove the entry from your Traefik configuration file.
+
+## Traefik Dashboard
+
+By default, the installation will require a `traefik-dashboard` subdomain to be set up on your local DNS provider, but you can change that by modifying the `docker-compose.yml` file.
+
+If no changes are made, once the DNS is configured, you should be able to access your Traefik Dashboard via the https://traefik-dashboard.[YOUR-DOMAIN]/.
 
 ## Logs & Debugging
 
