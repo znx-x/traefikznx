@@ -1,6 +1,6 @@
-# Traefik ZNX
+# TraefikZNX
 
-Welcome to the **Traefik ZNX** open source repository. This repository helps you setting up Wildcard SSL Certificates for your local area network using Cloudflare for domain management, Traefik, and Let's Encrypt. These certificates are free and auto-renewing. This repository was based on the tutorial released by [Techno Tim](https://www.youtube.com/@TechnoTim) and is meant to automate the process described on such tutorial, as well as to add some built-in advanced management scripts for Traefik.
+Welcome to the **TraefikZNX** open source repository. This repository helps you setting up Wildcard SSL Certificates for your local area network using Cloudflare for domain management, Traefik, and Let's Encrypt. These certificates are free and auto-renewing. This repository was based on the tutorial released by [Techno Tim](https://www.youtube.com/@TechnoTim) and is meant to automate the process described on such tutorial, as well as to add some built-in advanced management scripts for Traefik.
 
 ## Pre Requisites
 - Ubuntu 22.04+
