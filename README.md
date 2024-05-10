@@ -35,6 +35,7 @@ After the installation is complete, the script will display your hashed password
 ```shell
 nano .env
 ```
+*Use `CTRL` + `O` to save the changes, and `CTRL` + `X` to exit `nano` after you have finished editing the file.*
 
 Place the hashed password in front of the `TRAEFIK_DASHBOARD_CREDENTIALS` variable. Your `.env` file should look something like this:
 ```shell
